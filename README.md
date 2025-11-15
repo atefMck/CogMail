@@ -12,42 +12,16 @@ A complete email system for ComputerCraft with GUI interface using Basalt2. Feat
 - **Persistent Data**: All data persists between server restarts
 - **Configurable Security**: Encryption keys and salts configurable via settings
 - **Easy Installation**: Automated installer with GUI
-
-## Structure
-
-```
-emailServer/
-├── server/              # Server-side code
-│   ├── main.lua        # Server entry point
-│   ├── encryption.lua  # Encryption/decryption module (for emails)
-│   ├── accounts.lua    # Account management with password hashing
-│   ├── emails.lua      # Email storage and management
-│   └── protocol.lua    # Message protocol handlers
-├── client/             # Client-side code
-│   ├── main.lua        # Client entry point
-│   ├── network.lua     # Network communication module
-│   ├── utils.lua       # Utility functions
-│   └── screens/        # GUI screens
-│       ├── login.lua
-│       ├── account_creation.lua
-│       ├── inbox.lua
-│       ├── compose.lua
-│       └── email_view.lua
-├── build/              # Bundled files
-│   ├── mailingServer.lua  # Complete server in one file
-│   └── mailingClient.lua  # Complete client in one file
-├── installServer.lua   # Server installer
-└── README.md
-```
+- **Version Control**: Automatic version checking and update prompts
 
 ## Quick Start
 
 ### Server Installation
 
-**Option 1: Using the Installer (Recommended)**
+Run the installer:
 
 ```bash
-wget run https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/installServer.lua
+wget run https://raw.githubusercontent.com/atefMck/CogMail/refs/heads/main/installServer.lua
 ```
 
 The installer will:
@@ -56,48 +30,30 @@ The installer will:
 - Set up settings automatically
 - Optionally create a startup file
 
-**Option 2: Manual Installation**
-
-1. Copy `build/mailingServer.lua` to your server computer
-2. Configure settings:
-   ```lua
-   settings.define("email.encryption_key", {
-       description = "Encryption key for email server data",
-       default = "email_server_key_2024",
-       type = "string"
-   })
-   
-   settings.define("email.password_salt", {
-       description = "Salt key for password hashing",
-       default = "email_server_salt_2024",
-       type = "string"
-   })
-   
-   settings.set("email.encryption_key", "your_custom_key")
-   settings.set("email.password_salt", "your_custom_salt")
-   settings.save()
-   ```
-3. Run the server:
-   ```lua
-   local server = require("mailingServer")
-   server.runServer()
-   ```
-
-**Option 3: Quick Install (No GUI)**
+**Quick Install (No GUI):**
 
 ```bash
-wget run https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/installServer.lua -q
+wget run https://raw.githubusercontent.com/atefMck/CogMail/refs/heads/main/installServer.lua -q
 ```
 
 ### Client Installation
 
-1. Install Basalt2 library (required for GUI)
-2. Copy `build/mailingClient.lua` to your client computer
-3. Run the client:
-   ```lua
-   local client = require("mailingClient")
-   client.runClient()
-   ```
+Run the installer:
+
+```bash
+wget run https://raw.githubusercontent.com/atefMck/CogMail/refs/heads/main/installClient.lua
+```
+
+The installer will:
+- Download the client from the repository
+- Download Basalt2 automatically if needed
+- Optionally set up automatic startup
+
+**Quick Install (No GUI):**
+
+```bash
+wget run https://raw.githubusercontent.com/atefMck/CogMail/refs/heads/main/installClient.lua -q
+```
 
 ## Configuration
 
@@ -128,18 +84,27 @@ set email.password_salt your_custom_salt
 
 ### Server
 
-1. Start the server (see installation above)
+1. Start the server using the installer or run:
+   ```lua
+   local server = require("mailingServer")
+   server.runServer()
+   ```
 2. The server listens on channel 100 for client requests
-3. All accounts are stored in `accounts.dat` (plain serialized, passwords are hashed)
+3. All accounts are stored in `accounts.dat` (passwords are hashed)
 4. All emails are stored in `emails.dat` (encrypted)
 
 ### Client
 
-1. Start the client (see installation above)
-2. Create an account or login with existing credentials
-3. View your inbox with pagination
-4. Compose and send emails to other users
-5. View email details and delete emails
+1. Start the client using the installer or run:
+   ```lua
+   local client = require("mailingClient")
+   client.runClient()
+   ```
+2. The client will automatically check for version compatibility with the server
+3. Create an account or login with existing credentials
+4. View your inbox with pagination
+5. Compose and send emails to other users
+6. View email details and delete emails
 
 ## Security
 
@@ -165,29 +130,7 @@ set email.password_salt your_custom_salt
 
 ## Startup Configuration
 
-To run the server automatically on computer startup, create a `startup.lua` file:
-
-```lua
-local server = require("mailingServer")
-server.runServer()
-```
-
-The installer can create this file automatically if you select the startup option.
-
-## Development
-
-### Building Bundled Files
-
-The bundled files in `build/` contain all dependencies in a single file:
-- `mailingServer.lua`: Complete server with all modules
-- `mailingClient.lua`: Complete client with all modules
-
-These files expose `runServer()` and `runClient()` functions respectively.
-
-### Module Structure
-
-- **Server Modules**: Encryption, Accounts, Emails, Protocol
-- **Client Modules**: Network, Utils, and Screen modules (Login, AccountCreation, Inbox, Compose, EmailView)
+To run the server or client automatically on computer startup, the installer can create a `startup.lua` file automatically if you select the startup option during installation.
 
 ## Troubleshooting
 
@@ -199,14 +142,31 @@ These files expose `runServer()` and `runClient()` functions respectively.
 
 ### Client Issues
 
-- **"Basalt library not found"**: Install Basalt2 library
+- **"Basalt library not found"**: The installer will download Basalt2 automatically, or install it manually if needed
 - **Connection timeout**: Check that the server is running and modems are connected
 - **Can't login**: Verify username and password are correct
+- **Version mismatch**: The client will prompt you to update if versions don't match
 
 ## License
 
-[Add your license here]
+MIT License
 
-## Contributing
+Copyright (c) 2024 CogMail Contributors
 
-[Add contribution guidelines here]
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
