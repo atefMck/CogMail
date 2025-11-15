@@ -160,6 +160,17 @@ function Protocol.handleDeleteEmail(replyChannel, modem, data)
     modem.transmit(replyChannel, 100, response)
 end
 
+function Protocol.handleGetVersion(replyChannel, modem, data)
+    local VERSION = Protocol.VERSION or "1.0.0"  -- Get from main or use default
+    local response = {
+        type = "version_response",
+        success = true,
+        version = VERSION
+    }
+    
+    modem.transmit(replyChannel, 100, response)
+end
+
 function Protocol.processMessage(channel, replyChannel, message, distance, modem)
     if type(message) ~= "table" then
         return
@@ -183,6 +194,8 @@ function Protocol.processMessage(channel, replyChannel, message, distance, modem
         Protocol.handleGetEmail(replyChannel, modem, message)
     elseif msgType == "delete_email" then
         Protocol.handleDeleteEmail(replyChannel, modem, message)
+    elseif msgType == "get_version" then
+        Protocol.handleGetVersion(replyChannel, modem, message)
     else
         local response = {
             type = "error",

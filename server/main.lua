@@ -1,7 +1,14 @@
 -- Email Server Main File
+
+-- Version Information
+local VERSION = "1.0.0"
+
 local Accounts = require("accounts")
 local Emails = require("emails")
 local Protocol = require("protocol")
+
+-- Make VERSION available to Protocol module
+Protocol.VERSION = VERSION
 
 local modem = peripheral.find("modem") or error("No modem attached", 0)
 local SERVER_CHANNEL = 100

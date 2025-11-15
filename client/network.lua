@@ -228,5 +228,23 @@ function Network.getAllUsernames()
     end
 end
 
+function Network.getServerVersion()
+    local response, err = Network.sendRequest("get_version", {})
+    
+    if err then
+        return false, tostring(err)
+    end
+    
+    if not response then
+        return false, "No response from server"
+    end
+    
+    if response.success and response.version then
+        return true, response.version
+    else
+        return false, response.message or "Failed to get server version"
+    end
+end
+
 return Network
 

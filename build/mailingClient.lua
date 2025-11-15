@@ -1,6 +1,9 @@
 -- Bundled Email Client
 -- This file contains all client modules bundled together
 
+-- Version Information
+local CLIENT_VERSION = "1.0.0"
+
 -- ============================================================================
 -- Network Communication Module
 -- ============================================================================
@@ -229,6 +232,24 @@ function Network.getAllUsernames()
             errorMsg = response
         end
         return false, errorMsg
+    end
+end
+
+function Network.getServerVersion()
+    local response, err = Network.sendRequest("get_version", {})
+    
+    if err then
+        return false, tostring(err)
+    end
+    
+    if not response then
+        return false, "No response from server"
+    end
+    
+    if response.success and response.version then
+        return true, response.version
+    else
+        return false, response.message or "Failed to get server version"
     end
 end
 
@@ -1146,6 +1167,55 @@ end
 -- ============================================================================
 -- Main Client Function
 -- ============================================================================
+-- Helper function to compare version strings (simple semantic versioning)
+local function compareVersions(v1, v2)
+    if v1 == v2 then return 0 end
+    
+    local parts1 = {}
+    local parts2 = {}
+    
+    for part in v1:gmatch("%d+") do
+        table.insert(parts1, tonumber(part))
+    end
+    for part in v2:gmatch("%d+") do
+        table.insert(parts2, tonumber(part))
+    end
+    
+    local maxLen = math.max(#parts1, #parts2)
+    for i = 1, maxLen do
+        local p1 = parts1[i] or 0
+        local p2 = parts2[i] or 0
+        if p1 > p2 then return 1 end
+        if p1 < p2 then return -1 end
+    end
+    
+    return 0
+end
+
+-- Helper function to update client
+local function updateClient(targetVersion)
+    local clientUrl = "https://raw.githubusercontent.com/atefMck/CogMail/refs/heads/main/build/mailingClient.lua"
+    local installPath = "mailingClient.lua"
+    
+    print("Downloading client version " .. (targetVersion or "latest") .. "...")
+    local request = http.get(clientUrl)
+    if not request then
+        return false, "Failed to download client"
+    end
+    
+    local file = fs.open(installPath, "w")
+    if not file then
+        request.close()
+        return false, "Could not write to " .. installPath
+    end
+    
+    file.write(request.readAll())
+    file.close()
+    request.close()
+    
+    return true, "Client updated successfully"
+end
+
 function runClient()
     local basalt = require("basalt")
     
@@ -1163,7 +1233,128 @@ function runClient()
     local inboxScreen = nil  -- Keep reference to inbox screen
     
     -- Forward declarations
-    local showLogin, showInbox, showCompose
+    local showLogin, showInbox, showCompose, showVersionCheck
+    
+    -- Version check dialog
+    showVersionCheck = function()
+        if currentScreen and currentScreen.destroy then
+            currentScreen:destroy()
+        end
+        
+        local checkScreen = main:addFrame()
+            :setSize("{parent.width}", "{parent.height}")
+            :setBackground(colors.black)
+        
+        local statusLabel = checkScreen:addLabel()
+            :setText("Checking server version...")
+            :setPosition(2, 2)
+            :setForeground(colors.white)
+        
+        -- Try to get server version
+        basalt.schedule(function()
+            sleep(0.1) -- Small delay to show the checking message
+            local success, serverVersion = Network.getServerVersion()
+            
+            if not success then
+                -- Can't connect to server, show error but allow continue
+                statusLabel:setText("Warning: Could not connect to server")
+                statusLabel:setForeground(colors.yellow)
+                
+                local continueBtn = checkScreen:addButton()
+                    :setText("Continue Anyway")
+                    :setPosition("{parent.width / 2 - 7}", "{parent.height - 2}")
+                    :setSize(14, 1)
+                    :setBackground(colors.gray)
+                    :setForeground(colors.white)
+                    :onClick(function()
+                        checkScreen:destroy()
+                        showLogin()
+                    end)
+                return
+            end
+            
+            local versionMatch = compareVersions(CLIENT_VERSION, serverVersion) == 0
+            
+            if versionMatch then
+                -- Versions match, proceed to login
+                checkScreen:destroy()
+                showLogin()
+                return
+            end
+            
+            -- Versions don't match, show update dialog
+            local needsUpdate = compareVersions(CLIENT_VERSION, serverVersion) < 0
+            
+            statusLabel:setText("Version Mismatch Detected!")
+            statusLabel:setForeground(colors.red)
+            
+            local infoLabel = checkScreen:addLabel()
+                :setText("Client Version: " .. CLIENT_VERSION .. "\nServer Version: " .. serverVersion)
+                :setPosition(2, 4)
+                :setSize("{parent.width - 4}", 2)
+                :setForeground(colors.white)
+            
+            local actionLabel = checkScreen:addLabel()
+                :setText(needsUpdate and "Your client is outdated. Please update to match the server." or "Your client is newer than the server. Please downgrade or update the server.")
+                :setPosition(2, 7)
+                :setSize("{parent.width - 4}", 2)
+                :setForeground(colors.yellow)
+            
+            local updateBtn = checkScreen:addButton()
+                :setText(needsUpdate and "Update Client" or "Downgrade Client")
+                :setPosition("{parent.width / 2 - 15}", "{parent.height - 4}")
+                :setSize(14, 1)
+                :setBackground(needsUpdate and colors.green or colors.orange)
+                :setForeground(colors.white)
+            
+            -- Capture updateBtn and statusLabel in local variables for closure
+            local updateBtnRef = updateBtn
+            local statusLabelRef = statusLabel
+            
+            updateBtn:onClick(function()
+                    updateBtnRef:setText("Updating...")
+                    updateBtnRef:setEnabled(false)
+                    
+                    basalt.schedule(function()
+                        local success, message = updateClient(serverVersion)
+                        if success then
+                            statusLabelRef:setText("Update successful! Restarting...")
+                            statusLabelRef:setForeground(colors.green)
+                            sleep(2)
+                            os.reboot()
+                        else
+                            statusLabelRef:setText("Update failed: " .. message)
+                            statusLabelRef:setForeground(colors.red)
+                            updateBtnRef:setText("Retry")
+                            updateBtnRef:setEnabled(true)
+                        end
+                    end)
+                end)
+            
+            local continueBtn = checkScreen:addButton()
+                :setText("Continue Anyway")
+                :setPosition("{parent.width / 2 + 1}", "{parent.height - 4}")
+                :setSize(14, 1)
+                :setBackground(colors.gray)
+                :setForeground(colors.white)
+                :onClick(function()
+                    checkScreen:destroy()
+                    showLogin()
+                end)
+            
+            local cancelBtn = checkScreen:addButton()
+                :setText("Exit")
+                :setPosition("{parent.width / 2 - 7}", "{parent.height - 2}")
+                :setSize(14, 1)
+                :setBackground(colors.red)
+                :setForeground(colors.white)
+                :onClick(function()
+                    basalt.stop()
+                end)
+        end)
+        
+        currentScreen = checkScreen
+    end
     
     -- Define showInbox first so it's available when showLogin creates its callback
     showInbox = function()
@@ -1247,8 +1438,8 @@ function runClient()
         end)
     end
     
-    -- Start with login screen
-    showLogin()
+    -- Start with version check, then login
+    showVersionCheck()
     
     -- Run the GUI
     basalt.run()
