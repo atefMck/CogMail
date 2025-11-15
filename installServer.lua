@@ -2,7 +2,7 @@
 -- Download and install the CogMail email server
 
 -- TODO: Replace with your actual GitHub repository URL
-local serverUrl = "https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/build/mailingServer.lua"
+local serverUrl = "https://raw.githubusercontent.com/atefMck/CogMail/refs/heads/main/build/mailingServer.lua"
 local basaltUrl = "https://raw.githubusercontent.com/Pyroxenium/Basalt2/refs/heads/main/release/basalt-full.lua"
 
 local args = {...}
