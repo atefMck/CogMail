@@ -24,18 +24,6 @@ Run the installer:
 wget run https://raw.githubusercontent.com/atefMck/CogMail/refs/heads/main/installServer.lua
 ```
 
-The installer will:
-- Download the server from the repository
-- Prompt you to configure encryption key and password salt
-- Set up settings automatically
-- Optionally create a startup file
-
-**Quick Install (No GUI):**
-
-```bash
-wget run https://raw.githubusercontent.com/atefMck/CogMail/refs/heads/main/installServer.lua -q
-```
-
 ### Client Installation
 
 Run the installer:
@@ -43,16 +31,6 @@ Run the installer:
 ```bash
 wget run https://raw.githubusercontent.com/atefMck/CogMail/refs/heads/main/installClient.lua
 ```
-
-The installer will:
-- Download the client from the repository
-- Download Basalt2 automatically if needed
-- Optionally set up automatic startup
-
-**Quick Install (No GUI):**
-
-```bash
-wget run https://raw.githubusercontent.com/atefMck/CogMail/refs/heads/main/installClient.lua -q
 ```
 
 ## Configuration
@@ -72,13 +50,6 @@ Or using the `set` program:
 set email.encryption_key your_custom_key
 set email.password_salt your_custom_salt
 ```
-
-### Security Settings
-
-- **Encryption Key** (`email.encryption_key`): Used to encrypt email data files
-- **Password Salt** (`email.password_salt`): Used as salt for password hashing
-
-**Important**: Change these from defaults before using in production!
 
 ## Usage
 
@@ -106,21 +77,6 @@ set email.password_salt your_custom_salt
 5. Compose and send emails to other users
 6. View email details and delete emails
 
-## Security
-
-### Password Security
-
-- Passwords are **hashed** (not encrypted) using a salted hash algorithm
-- Each password is hashed with the username as salt
-- Original passwords cannot be recovered from hashes
-- Account files are stored as plain serialized data (passwords are already hashed)
-
-### Email Security
-
-- Email data files are **encrypted** using the encryption key
-- The encryption key is configurable via settings
-- Email files cannot be read without the correct encryption key
-
 ### Best Practices
 
 1. **Change default keys**: Always change `email.encryption_key` and `email.password_salt` from defaults
@@ -132,41 +88,3 @@ set email.password_salt your_custom_salt
 
 To run the server or client automatically on computer startup, the installer can create a `startup.lua` file automatically if you select the startup option during installation.
 
-## Troubleshooting
-
-### Server Issues
-
-- **"No modem attached"**: Make sure a modem is attached to the server computer
-- **Settings not saving**: Check file permissions and disk space
-- **Can't decrypt emails**: Verify the encryption key matches the one used when emails were created
-
-### Client Issues
-
-- **"Basalt library not found"**: The installer will download Basalt2 automatically, or install it manually if needed
-- **Connection timeout**: Check that the server is running and modems are connected
-- **Can't login**: Verify username and password are correct
-- **Version mismatch**: The client will prompt you to update if versions don't match
-
-## License
-
-MIT License
-
-Copyright (c) 2024 CogMail Contributors
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
