@@ -69,8 +69,18 @@ else
     if not basaltRequest then
         error("Failed to download Basalt. Please install Basalt manually or use -q for quick install.")
     end
-    basalt = load(basaltRequest.readAll(), "basalt", "bt", _ENV)()
+    local basaltContent = basaltRequest.readAll()
     basaltRequest.close()
+    
+    -- Save Basalt to disk for future use
+    local basaltSaveFile = fs.open("basalt.lua", "w")
+    if basaltSaveFile then
+        basaltSaveFile.write(basaltContent)
+        basaltSaveFile.close()
+        print("Basalt saved to basalt.lua")
+    end
+    
+    basalt = load(basaltContent, "basalt", "bt", _ENV)()
 end
 
 local coloring = {foreground = colors.black, background = colors.white}
