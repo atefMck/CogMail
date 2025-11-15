@@ -1,6 +1,6 @@
 # CogMail - Email Server System
 
-A complete email system for ComputerCraft with GUI interface using Basalt2. Features secure password hashing, encrypted email storage, and a beautiful user interface.
+A complete email system for ComputerCraft with GUI interface using [Basalt2](https://basalt.madefor.cc/). Features secure password hashing, encrypted email storage, and a beautiful user interface.
 
 ## Features
 
